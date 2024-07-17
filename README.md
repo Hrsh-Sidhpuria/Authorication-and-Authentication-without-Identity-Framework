@@ -3,7 +3,7 @@
 This project is a demonstration of authentication and authorization in ASP.NET Core MVC without using the ASP.NET Identity Framework or Entity Framework. The goal is to provide a custom implementation for handling user roles, claims, and permissions.
 
 ## Project Structure
-
+```
 .
 ├── Account
 │   ├── ClaimManager
@@ -46,7 +46,7 @@ This project is a demonstration of authentication and authorization in ASP.NET C
 ├── appsettings.json
 ├── Program.cs
 └── README.md
-
+```
 
 ## Features
 
