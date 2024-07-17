@@ -1,0 +1,67 @@
+﻿@model Test3.Account.UserManager.UserModel
+@{
+    ViewData["Title"] = "Edit Account Details";
+    string username = ViewData["Username"]?.ToString() ?? string.Empty;
+    string role = ViewData["Role"]?.ToString() ?? string.Empty;
+    string email = ViewData["Email"]?.ToString() ?? string.Empty;
+}
+
+<section class="bg-dark text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card mb-4 bg-secondary text-white border-0">
+                    <div class="card-body text-center">
+                        <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                        <h5 class="my-3">@username</h5>
+                        <p class="text-warning mb-1">Role: @role</p>
+                        <a asp-action="EditData" asp-controller="Account" class="btn btn-primary btn-lg active px-md-4 m-1 border-dark">Edit</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card mb-4 bg-secondary text-white border-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0 "><b>Username</b></p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-white mb-0">@username</p>
+                            </div>
+                        </div>
+                        <hr class="bg-white">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0"><b>Email</b></p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-white mb-0">@email</p>
+                            </div>
+                        </div>
+                        <hr class="bg-white">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0"><b>Role</b></p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-white mb-0">@role</p>
+                            </div>
+                        </div>
+                        <hr class="bg-white">
+                        <a asp-action="ChangePassword" asp-controller="Account" class="btn btn-info btn-lg active px-md-3 m-1 border-dark">Change Password</a>
+                        <hr class="bg-white">
+                        <a asp-action="Logout" asp-controller="Account" class=" text-white btn btn-secondary btn-lg active px-md-3 m-1 border-dark">
+                            logOut
+                        </a>
+                        <hr class="bg-white">
+                        <a asp-action="DeleteAccount" asp-controller="Account" class=" text-white btn btn-outline-danger btn-lg active px-md-3 m-1 border-dark">
+                            Delete Account
+                        </a>
+                        <hr class="bg-white">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
