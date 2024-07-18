@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 
-namespace Test3.Account.UserManager
+namespace Authorization_Authentication.Account.UserManager
 {
     public class UserModel
     {

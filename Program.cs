@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Test3.Account.ClaimManager;
-using Test3.Account.RoleManager;
-using Test3.Account.UserManager;
+using Authorization_Authentication.Account.ClaimManager;
+using Authorization_Authentication.Account.RoleManager;
+using Authorization_Authentication.Account.UserManager;
 
 var builder = WebApplication.CreateBuilder(args);
 

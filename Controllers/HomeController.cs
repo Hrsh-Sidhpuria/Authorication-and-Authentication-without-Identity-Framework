@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using Test3.Models;
+using Authorization_Authentication.Models;
 
-namespace Test3.Controllers
+namespace Authorization_Authentication.Controllers
 {
     public class HomeController : Controller
     {

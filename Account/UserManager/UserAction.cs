@@ -5,10 +5,10 @@ using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System.Security.Cryptography;
 using System.Text;
-using Test3.Account.ClaimManager;
-using Test3.Account.RoleManager;
+using Authorization_Authentication.Account.ClaimManager;
+using Authorization_Authentication.Account.RoleManager;
 
-namespace Test3.Account.UserManager
+namespace Authorization_Authentication.Account.UserManager
 {
     public class UserAction : IUserAction
     {
@@ -59,7 +59,7 @@ namespace Test3.Account.UserManager
                     cmdUser.Parameters.AddWithValue("PasswordHash", passwordHash);
                     cmdUser.Parameters.AddWithValue("PhoneNumberConfirmed", 0);
                     cmdUser.Parameters.AddWithValue("TwoFactorEnabled", 0);
-                    cmdUser.Parameters.AddWithValue("LockoutEnabled", 0);
+                    cmdUser.Parameters.AddWithValue("LockoutEnabled", 1);
                     cmdUser.Parameters.AddWithValue("AccessFailedCount", 0);
 
                     int respUserInsert = cmdUser.ExecuteNonQuery();
@@ -504,7 +504,230 @@ namespace Test3.Account.UserManager
             return fetchedPassword;
         }
 
-        
+        public int accessFailedCount(string Username,int totalFailedCount)
+        {
+            int currentfailedCount=0;
+            int failCountRemain=0;
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    if (conn.State == System.Data.ConnectionState.Open)
+                    {
+
+                        string failCount = "SELECT * FROM AspNetUsers WHERE UserName = @UserName";
+                        SqlCommand Usercmd = new SqlCommand(failCount, conn);
+                        Usercmd.Parameters.AddWithValue("UserName", Username);
+                        SqlDataReader rd = Usercmd.ExecuteReader();
+                        if (rd != null)
+                        {
+                            if (rd.Read())
+                            {
+                                currentfailedCount = Convert.ToInt32(rd["AccessFailedCount"]);
+                            }
+                        }
+                        currentfailedCount++;
+
+                        string UpdateDate = "UPDATE AspNetUsers SET AccessFailedCount = @AccessFailedCount WHERE UserName = @UserName";
+                        SqlCommand updatecmd = new SqlCommand(UpdateDate, conn);
+                        updatecmd.Parameters.AddWithValue("AccessFailedCount", currentfailedCount);
+                        updatecmd.Parameters.AddWithValue("UserName", Username);
+                        int rowsAffected = updatecmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            failCountRemain = totalFailedCount - currentfailedCount;
+                            return failCountRemain;
+                        }
+
+                        }
+                }
+
+                catch (SqlException ex)
+                {
+                    Console.WriteLine("SQL Error: " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return failCountRemain;
+
+        }
+
+        public bool resetFailCount(string Username)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    if (conn.State == System.Data.ConnectionState.Open)
+                    {
+                        string resetDate = "UPDATE AspNetUsers SET AccessFailedCount = @AccessFailedCount WHERE UserName = @UserName";
+                        SqlCommand resetcmd = new SqlCommand(resetDate, conn);
+                        resetcmd.Parameters.AddWithValue("AccessFailedCount", 0);
+                        resetcmd.Parameters.AddWithValue("UserName", Username);
+                        int rowsAffected = resetcmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+                }
+
+                catch (SqlException ex)
+                {
+                    Console.WriteLine("SQL Error: " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                return false;
+            }
+        }
+
+        public bool setLockAccountdate(string Username)
+        {
+            //giving 1 min for testing purpose
+            var lockoutEndDate = DateTimeOffset.UtcNow.AddMinutes(1);
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    if (conn.State == System.Data.ConnectionState.Open)
+                    {
+                        string resetDate = "UPDATE AspNetUsers SET LockoutEnd = @LockoutEnd WHERE UserName = @UserName";
+                        SqlCommand resetcmd = new SqlCommand(resetDate, conn);
+                        resetcmd.Parameters.AddWithValue("LockoutEnd", lockoutEndDate);
+                        resetcmd.Parameters.AddWithValue("UserName", Username);
+                        int rowsAffected = resetcmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+
+                            resetFailCount(Username);
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    }
+                }
+
+                catch (SqlException ex)
+                {
+                    Console.WriteLine("SQL Error: " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                return false;
+            }
+
+            return false;
+        }
+
+        public bool getLockAccountdate(string Username)
+        {
+            
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                
+                try
+                {
+                    conn.Open();
+                    if (conn.State == System.Data.ConnectionState.Open)
+                    {
+                        string failCount = "SELECT * FROM AspNetUsers WHERE UserName = @UserName";
+                        SqlCommand Usercmd = new SqlCommand(failCount, conn);
+                        Usercmd.Parameters.AddWithValue("UserName", Username);
+                        SqlDataReader rd = Usercmd.ExecuteReader();
+                        if (rd != null)
+                        {
+                            if (rd.Read())
+                            {
+                                var lockoutEndDate = (DateTimeOffset)rd["LockoutEnd"];
+                                if (lockoutEndDate > DateTimeOffset.UtcNow)
+                                {
+                                    return true;
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                catch (SqlException ex)
+                {
+                    Console.WriteLine("SQL Error: " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                
+            }
+
+            return false;
+        }
+
+        public bool isLockAccount(string Username)
+        {
+            string lockdate = null;
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    if (conn.State == System.Data.ConnectionState.Open)
+                    {
+                        string islock = "Select * from AspNetUsers where UserName = @UserName";
+                        SqlCommand isLockcmd = new SqlCommand(islock, conn);
+                        isLockcmd.Parameters.AddWithValue("UserName", Username);
+                        SqlDataReader rd = isLockcmd.ExecuteReader();
+                        if (rd != null)
+                        {
+                            if (rd.Read())
+                            {
+                                lockdate = rd["LockoutEnd"].ToString();
+
+                            }
+
+                        }
+                    }
+                    if (lockdate != null)
+                    {
+                        return true;
+                    }
+                        
+                }
+
+                catch (SqlException ex)
+                {
+                    Console.WriteLine("SQL Error: " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                return false;
+            }
+        }
     }
     
 }

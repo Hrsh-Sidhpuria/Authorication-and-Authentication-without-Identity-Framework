@@ -1,16 +1,38 @@
-﻿@model Test3.Account.UserManager.UserModel
+﻿@model Authorization_Authentication.Account.UserManager.UserModel
 @{
     ViewData["Title"] = "Login";
 
     string returnurl = ViewData["returnedUrl"] as String;
+    string remainingattempt = ViewData["remainingAttempt"]?.ToString() ?? string.Empty;
+    bool isLockedOut = ViewData["onLockout"] != null && (bool)ViewData["onLockout"];
 
+    
 }
 
 <h1>Login</h1>
-
-<h4>ApplicationUser</h4>
-
 @{
+<h4>ApplicationUser</h4>
+if(isLockedOut){
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Sorry ! </strong>This account has been locked due to multiple failed login attempt , please try again later ...
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+        </div>
+    }
+    else
+    {
+        if (remainingattempt != "")
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @remainingattempt Attempt Remaining !
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        }
+    }
+
     <div class="row">
         <div class="col-md-4">
             <form action="Login?ReturnUrl=@System.Net.WebUtility.UrlEncode(returnurl)" method="post">

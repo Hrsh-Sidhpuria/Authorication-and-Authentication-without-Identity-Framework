@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Test3.Account.ClaimManager
+namespace Authorization_Authentication.Account.ClaimManager
 {
     public interface IClaimAction
     {

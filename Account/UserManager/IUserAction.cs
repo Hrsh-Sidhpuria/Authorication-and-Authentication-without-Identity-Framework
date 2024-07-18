@@ -1,4 +1,4 @@
-﻿namespace Test3.Account.UserManager
+﻿namespace Authorization_Authentication.Account.UserManager
 {
     public interface IUserAction
     {
@@ -15,6 +15,15 @@
         public string getPassword(string Username);
         public bool deleteUser(string username, string password);
 
+        public int accessFailedCount(string Username, int totalfailedCount);
+
+        public bool resetFailCount(string Username);
+
+        public bool setLockAccountdate(string Username);
+
+        public bool isLockAccount(string Username);
+
+        public bool getLockAccountdate(string Username);
 
     }
 }

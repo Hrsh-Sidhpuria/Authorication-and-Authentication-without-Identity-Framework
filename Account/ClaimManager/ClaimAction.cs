@@ -2,10 +2,10 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using Test3.Account.RoleManager;
-using Test3.Account.UserManager;
+using Authorization_Authentication.Account.RoleManager;
+using Authorization_Authentication.Account.UserManager;
 
-namespace Test3.Account.ClaimManager
+namespace Authorization_Authentication.Account.ClaimManager
 {
     public class ClaimAction : IClaimAction
     {

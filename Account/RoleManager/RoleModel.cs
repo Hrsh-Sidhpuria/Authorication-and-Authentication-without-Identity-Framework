@@ -1,4 +1,4 @@
-﻿namespace Test3.Account.RoleManager
+﻿namespace Authorization_Authentication.Account.RoleManager
 {
     public class RoleModel
     {

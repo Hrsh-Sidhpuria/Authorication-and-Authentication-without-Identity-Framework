@@ -1,9 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
-using Test3.Account.ClaimManager;
-using Test3.Account.UserManager;
+using Authorization_Authentication.Account.ClaimManager;
+using Authorization_Authentication.Account.UserManager;
 
-namespace Test3.Account.RoleManager
+namespace Authorization_Authentication.Account.RoleManager
 {
     public class RoleAction : IRoleAction
     {

@@ -1,4 +1,4 @@
-namespace Test3.Models
+namespace Authorization_Authentication.Models
 {
     public class ErrorViewModel
     {
