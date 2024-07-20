@@ -2,14 +2,26 @@
 
 @{
     ViewData["Title"] = "Register";
+    
 }
 
 <h1>Register</h1>
 
 <h4>ApplicationUser</h4>
 <hr />
+<div style="display:none" id="availableMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>OOPS ! </strong>Username is not available , please choose another username
+</div>
+<div style="display:none" id="usernameEnter" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Please enter Username </strong>
+</div>
 <div class="row">
     <div class="col-md-4">
+
+
+        
+        
+        
         <form asp-action="Register">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -20,7 +32,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
+                <input asp-for="Username" class="form-control" id="Username" />
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -58,3 +70,35 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var Username = document.getElementById("Username");
+        var message = document.getElementById("availableMessage");
+        var userEnter = document.getElementById("usernameEnter");
+
+        Username.addEventListener("blur", function () {
+            var username = Username.value;
+            if (username == "") {
+                userEnter.style.display = "block";
+            }
+            else {
+                userEnter.style.display = "none";
+                //console.log(username);
+                var url = '@Url.Action("IsUsernameAvailable", "Account")' + '?username=' + encodeURIComponent(username);
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(isAvailable => {
+                    if (!isAvailable) {
+                        message.style.display = "block";
+                    } else {
+                        message.style.display = "none";
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+    
+</script>

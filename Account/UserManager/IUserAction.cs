@@ -2,7 +2,8 @@
 {
     public interface IUserAction
     {
-        public bool createUser(string Username, string Password, string Role, string Email);
+        public Task<bool> UsernameAvailable(string Username);
+        public Task<bool> createUser(string Username, string Password, string Role, string Email);
 
         public string getEmail(string Username);
         public string getIdByName(string Username);

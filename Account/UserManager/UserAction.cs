@@ -26,9 +26,39 @@ namespace Authorization_Authentication.Account.UserManager
             this._roleAction = roleAction;
             this._claimAction = claimAction;
         }
+        //verifying if the username is available or not 
+        public async Task<bool> UsernameAvailable(string Username)
+        {
+            SqlConnection conn = new SqlConnection(_connectionString);
+            try
+            {
+                conn.Open();
+                if (conn.State == System.Data.ConnectionState.Open)
+                {
+                    string isAvailQuery = "select * from AspNetUsers where UserName = @Username";
+                    SqlCommand idAvailcmd = new SqlCommand(isAvailQuery, conn);
+                    idAvailcmd.Parameters.AddWithValue("Username", Username);
+                    SqlDataReader rd = await idAvailcmd.ExecuteReaderAsync();
+
+                        if (rd.Read()) { return false; }
+                        else { return true; }
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine("SQL Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+
 
         //for Registering user
-        public bool createUser(string Username, string Password, string Role, string Email)
+        public async Task<bool> createUser(string Username, string Password, string Role, string Email)
         {
             string Id = GenerateUniqueHashId();
             bool isregister = false;
@@ -40,13 +70,13 @@ namespace Authorization_Authentication.Account.UserManager
 
             try
             {
-                conn.Open();
+                await conn.OpenAsync();
                 if (conn.State == System.Data.ConnectionState.Open)
                 {
 
                     Console.WriteLine("connected");
 
-                    string userInsertQuery = "insert into AspNetUsers(Id,Username,NormalizedUserName,Email,EmailConfirmed,PasswordHash,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnabled,AccessFailedCount) values(@Id,@Username,@NormalizedUserName,@Email,@EmailConfirmed,@PasswordHash,@PhoneNumberConfirmed,@TwoFactorEnabled,@LockoutEnabled,@AccessFailedCount)";
+                    string userInsertQuery = "insert into AspNetUsers(Id,UserName,NormalizedUserName,Email,EmailConfirmed,PasswordHash,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnabled,AccessFailedCount) values(@Id,@Username,@NormalizedUserName,@Email,@EmailConfirmed,@PasswordHash,@PhoneNumberConfirmed,@TwoFactorEnabled,@LockoutEnabled,@AccessFailedCount)";
 
 
 
@@ -62,7 +92,7 @@ namespace Authorization_Authentication.Account.UserManager
                     cmdUser.Parameters.AddWithValue("LockoutEnabled", 1);
                     cmdUser.Parameters.AddWithValue("AccessFailedCount", 0);
 
-                    int respUserInsert = cmdUser.ExecuteNonQuery();
+                    int respUserInsert = await cmdUser.ExecuteNonQueryAsync();
 
 
                     bool isUserRoleAssign = AssignUsersRoles(Username, Role);
@@ -84,75 +114,6 @@ namespace Authorization_Authentication.Account.UserManager
             return isregister;
         }
 
-        //method to fetch userid and roleid to insert it in AspNetUsersRoles table 
-        public bool AssignUsersRoles(string Username, string Role)
-        {
-            bool isUserRoleAssign = false;
-            string UserId = null;
-            string RoleID = null;
-            SqlConnection conn = new SqlConnection(_connectionString);
-            try
-            {
-                conn.Open();
-                if (conn.State == System.Data.ConnectionState.Open)
-                {
-
-                    Console.WriteLine("connected");
-
-
-                    string FetchUserId = "Select * from AspNetUsers where Username = @Username";
-                    SqlCommand cmdUserId = new SqlCommand(FetchUserId, conn);
-                    cmdUserId.Parameters.AddWithValue("Username", Username);
-                    using (SqlDataReader rd = cmdUserId.ExecuteReader())
-                    {
-                        if (rd.Read())
-                        {
-                            UserId = rd["Id"].ToString();
-
-                        }
-                    }
-
-                    string FetchRoleId = "Select * from AspNetRoles where Name = @Name";
-                    SqlCommand cmdRoleId = new SqlCommand(FetchRoleId, conn);
-                    cmdRoleId.Parameters.AddWithValue("Name", Role);
-
-                    using (SqlDataReader rd1 = cmdRoleId.ExecuteReader())
-                    {
-                        if (rd1.Read())
-                        {
-                            RoleID = rd1["Id"].ToString();
-
-                        }
-                    }
-
-                    string insertUserIdRoleId = "insert into AspNetUserRoles values(@UserId,@RoleId)";
-                    SqlCommand cmdUserIdRoleId = new SqlCommand(insertUserIdRoleId, conn);
-                    cmdUserIdRoleId.Parameters.AddWithValue("UserId", UserId);
-                    cmdUserIdRoleId.Parameters.AddWithValue("RoleId", RoleID);
-                    int resp = cmdUserIdRoleId.ExecuteNonQuery();
-                    if (resp > 0)
-                    {
-                        isUserRoleAssign = true;
-                        return isUserRoleAssign;
-                    }
-                    else
-                    {
-                        isUserRoleAssign = false;
-                        return isUserRoleAssign;
-                    }
-
-
-
-                }
-                conn.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            return isUserRoleAssign;
-        }
-
         //for login user 
         public bool LoginUser(string Username, string Password)
         {
@@ -165,7 +126,7 @@ namespace Authorization_Authentication.Account.UserManager
                 conn.Open();
                 if (conn.State == System.Data.ConnectionState.Open)
                 {
-                    string LoginQuery = "select * from AspNetUsers where Username = @Username";
+                    string LoginQuery = "select * from AspNetUsers where UserName = @Username";
                     SqlCommand cmd = new SqlCommand(LoginQuery, conn);
                     cmd.Parameters.AddWithValue("Username", Username);
                     SqlDataReader rd = cmd.ExecuteReader();
@@ -207,8 +168,6 @@ namespace Authorization_Authentication.Account.UserManager
             return false;
         }
 
-
-
         public bool deleteUser(string username, string password)
         {
             
@@ -249,58 +208,6 @@ namespace Authorization_Authentication.Account.UserManager
             }
             return false;
 
-        }
-
-
-
-        public static string HashPassword(string password)
-        {
-            if (string.IsNullOrEmpty(password))
-            {
-                throw new ArgumentNullException(nameof(password), "Password cannot be null or empty.");
-            }
-
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < hashedBytes.Length; i++)
-                {
-                    builder.Append(hashedBytes[i].ToString("x2"));
-                }
-                return builder.ToString();
-            }
-        }
-
-        //use for normalize string 
-        public static string Normalize(string str)
-        {
-            if (string.IsNullOrWhiteSpace(str))
-                throw new ArgumentException("Username cannot be null or empty.");
-
-
-            return str.Trim().ToUpper();
-        }
-
-
-
-
-        public static string GenerateUniqueHashId()
-        {
-            string uniqueString = $"{DateTime.UtcNow.Ticks}-{Guid.NewGuid().ToString()}";
-            return HashString(uniqueString);
-        }
-
-        private static string HashString(string input)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var combinedString = input + Salt;
-                var bytes = Encoding.UTF8.GetBytes(combinedString);
-                var hashBytes = sha256.ComputeHash(bytes);
-                return Convert.ToBase64String(hashBytes);
-            }
         }
 
         public string getEmail(string Username)
@@ -726,6 +633,126 @@ namespace Authorization_Authentication.Account.UserManager
                     Console.WriteLine(ex.Message);
                 }
                 return false;
+            }
+        }
+
+        //method to fetch userid and roleid and then inserting it in AspNetUsersRoles table 
+        public bool AssignUsersRoles(string Username, string Role)
+        {
+            bool isUserRoleAssign = false;
+            string UserId = null;
+            string RoleID = null;
+            SqlConnection conn = new SqlConnection(_connectionString);
+            try
+            {
+                conn.Open();
+                if (conn.State == System.Data.ConnectionState.Open)
+                {
+
+                    Console.WriteLine("connected");
+
+
+                    string FetchUserId = "Select * from AspNetUsers where Username = @Username";
+                    SqlCommand cmdUserId = new SqlCommand(FetchUserId, conn);
+                    cmdUserId.Parameters.AddWithValue("Username", Username);
+                    using (SqlDataReader rd = cmdUserId.ExecuteReader())
+                    {
+                        if (rd.Read())
+                        {
+                            UserId = rd["Id"].ToString();
+
+                        }
+                    }
+
+                    string FetchRoleId = "Select * from AspNetRoles where Name = @Name";
+                    SqlCommand cmdRoleId = new SqlCommand(FetchRoleId, conn);
+                    cmdRoleId.Parameters.AddWithValue("Name", Role);
+
+                    using (SqlDataReader rd1 = cmdRoleId.ExecuteReader())
+                    {
+                        if (rd1.Read())
+                        {
+                            RoleID = rd1["Id"].ToString();
+
+                        }
+                    }
+
+                    string insertUserIdRoleId = "insert into AspNetUserRoles values(@UserId,@RoleId)";
+                    SqlCommand cmdUserIdRoleId = new SqlCommand(insertUserIdRoleId, conn);
+                    cmdUserIdRoleId.Parameters.AddWithValue("UserId", UserId);
+                    cmdUserIdRoleId.Parameters.AddWithValue("RoleId", RoleID);
+                    int resp = cmdUserIdRoleId.ExecuteNonQuery();
+                    if (resp > 0)
+                    {
+                        isUserRoleAssign = true;
+                        return isUserRoleAssign;
+                    }
+                    else
+                    {
+                        isUserRoleAssign = false;
+                        return isUserRoleAssign;
+                    }
+
+
+
+                }
+                conn.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return isUserRoleAssign;
+        }
+
+        //method to generate hash password 
+        public static string HashPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+            {
+                throw new ArgumentNullException(nameof(password), "Password cannot be null or empty.");
+            }
+
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < hashedBytes.Length; i++)
+                {
+                    builder.Append(hashedBytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
+        //method to normalize string 
+        public static string Normalize(string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+                throw new ArgumentException("Username cannot be null or empty.");
+
+
+            return str.Trim().ToUpper();
+        }
+
+
+        //generate a unique hash id 
+        public static string GenerateUniqueHashId()
+        {
+            string uniqueString = $"{DateTime.UtcNow.Ticks}-{Guid.NewGuid().ToString()}";
+            return HashString(uniqueString);
+        }
+
+        
+        private static string HashString(string input)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var combinedString = input + Salt;
+                var bytes = Encoding.UTF8.GetBytes(combinedString);
+                var hashBytes = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hashBytes);
             }
         }
     }
