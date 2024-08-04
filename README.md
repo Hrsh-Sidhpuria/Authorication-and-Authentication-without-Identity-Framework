@@ -19,6 +19,7 @@ This project is a demonstration of authentication and authorization in ASP.NET C
 │   │   ├── UserModel.cs
 ├── Controllers
 │   ├── AccountController.cs
+│   ├── ErrorController.cs
 │   ├── HomeController.cs
 ├── Models
 │   ├── ErrorViewModel.cs
@@ -42,6 +43,7 @@ This project is a demonstration of authentication and authorization in ASP.NET C
 │   │   ├── Error.cshtml
 │   │   ├── _ViewImports.cshtml
 │   │   ├── _ViewStart.cshtml
+│   │   ├── NotFound.cshtml
 ├── .gitignore
 ├── appsettings.json
 ├── Program.cs
