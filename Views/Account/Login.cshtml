@@ -1,62 +1,57 @@
 ﻿@model Authorization_Authentication.Account.UserManager.UserModel
+
 @{
     ViewData["Title"] = "Login";
 
     string returnurl = ViewData["returnedUrl"] as String;
     string remainingattempt = ViewData["remainingAttempt"]?.ToString() ?? string.Empty;
+    string invalidMsg = ViewBag.invaliduser?.ToString() ?? string.Empty;
     bool isLockedOut = ViewData["onLockout"] != null && (bool)ViewData["onLockout"];
-
-    
 }
 
-<h1>Login</h1>
-@{
-<h4>ApplicationUser</h4>
-if(isLockedOut){
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Sorry ! </strong>This account has been locked due to multiple failed login attempt , please try again later ...
-        </div>
-    }
-    else
-    {
-        if (remainingattempt != "")
-        {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                @remainingattempt Attempt Remaining !
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        }
-    }
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg p-3 mb-5 bg-dark rounded border border-white" style="width: 100%; max-width: 500px;">
+        <div class="card-body">
+            <h1 class="card-title text-center mb-4" style="font-size: 2rem;">Login</h1>
+            <h4 class="text-center">Sign in to your account</h4>
+            <hr />
 
-    <div class="row">
-        <div class="col-md-4">
+            @if (isLockedOut)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Sorry!</strong> This account has been locked due to multiple failed login attempts. Please try again later.
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(remainingattempt))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @remainingattempt Attempt Remaining!
+                </div>
+            }
+
             <form action="Login?ReturnUrl=@System.Net.WebUtility.UrlEncode(returnurl)" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="form-group">
                     <label asp-for="Username" class="control-label"></label>
-                    <input asp-for="Username" class="form-control" />
+                    <input asp-for="Username" class="form-control" placeholder="Enter your username" />
                     <span asp-validation-for="Username" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Password" class="control-label"></label>
-                    <input asp-for="Password" class="form-control" />
+                    <input type="password" asp-for="Password" class="form-control" placeholder="Enter your password" />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <input type="submit" value="Login" class="btn btn-primary" />
+                <small style="color:red">@invalidMsg</small>
+                <div class="form-group text-center">
+                    <input type="submit" value="Login" class="btn btn-primary mt-3 px-5" />
                 </div>
             </form>
+            <div class="text-center mt-3">
+                <a asp-action="Register">Don't have an account? Register</a>
+            </div>
         </div>
     </div>
-
-
-}
-
-<div>
-    <a asp-action="Register">Register</a>
 </div>
 
 @section Scripts {

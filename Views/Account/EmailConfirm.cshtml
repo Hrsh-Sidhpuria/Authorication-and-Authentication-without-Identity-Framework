@@ -1,0 +1,29 @@
+﻿@model Authorization_Authentication.Account.UserManager.UserModel
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    string email = ViewBag.email;
+    string wrongOtp = TempData["wrongOtp"]?.ToString() ?? string.Empty;
+    string emptyField = TempData["emptyField"]?.ToString() ?? string.Empty;
+}
+
+<h5>OTP has been sent to your Email :  @email</h5>
+
+<div class="row">
+    <div class="col-md-4">
+        <form action="EmailConfirm" method="post">
+
+            <div class="form-group">
+                <label asp-for="otp" class="control-label"></label>
+                <input asp-for="otp" class="form-control w-100" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Verify" class="btn btn-primary mt-3" />
+            </div>
+           
+        </form>
+    </div>
+</div>
+]

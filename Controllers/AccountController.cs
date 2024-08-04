@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Authorization_Authentication.Account.RoleManager;
 using Authorization_Authentication.Account.UserManager;
-using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Authorization_Authentication.Account.ClaimManager;
-using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Authorization_Authentication.Account.MailingServices;
 
 namespace Authorization_Authentication.Controllers
 {
@@ -21,14 +19,20 @@ namespace Authorization_Authentication.Controllers
         private readonly IRoleAction _role;
         private readonly UserModel _user;
         private readonly IClaimAction _claimAction;
+        private readonly ISendEmail _sendEmail;
 
         //Constructor Injection: add the dependencies as parameter to the constructor of the class
-        public AccountController(IUserAction users, IRoleAction role, UserModel User, IClaimAction claimAction)
+        public AccountController(IUserAction users, 
+                                    IRoleAction role,
+                                    UserModel User,
+                                    IClaimAction claimAction,
+                                    ISendEmail sendEmai)
         {
             this._userManager = users;
             this._role = role;
             _user = User;
             this._claimAction = claimAction;
+            this._sendEmail = sendEmai;
         }
 
         public IActionResult Index()
@@ -57,6 +61,7 @@ namespace Authorization_Authentication.Controllers
             bool isregister = await _userManager.createUser(Users.Username, Users.Password, Roles.Role, Users.Email);
             if (isregister)
             {
+                HttpContext.Session.SetString("Email", Users.Email);
                 return RedirectToAction("RegisterSuccessfully");
 
             }
@@ -72,6 +77,56 @@ namespace Authorization_Authentication.Controllers
         //Successfull registration method or data verification method
         public IActionResult RegisterSuccessfully()
         {
+            string email = HttpContext.Session.GetString("Email");
+            ViewBag.Email = email;
+            return View();
+        }
+
+        //this is a method to verify Email account
+        [HttpGet]
+        public IActionResult EmailConfirm()
+        {
+            // here there is a method ot check that if email is already verified.if verified then no need to verify again (Pending)
+
+            MailData data = new MailData()
+            {
+                Email = HttpContext.Session.GetString("Email"),
+                Subject = "OTP for email conformation"
+            };
+            ViewBag.email = data.Email;
+            string Code = _sendEmail.sendEmail(data);
+            HttpContext.Session.SetString("OnetimeOtp", Code);
+            return View();
+
+        }
+
+        [HttpPost]
+        public IActionResult EmailConfirm(UserModel userotp)
+        {
+            if (userotp.otp != null)
+            {
+                string Code = HttpContext.Session.GetString("OnetimeOtp");
+                if (userotp.otp == Code)
+                {
+                    HttpContext.Session.Remove("Email");
+                    HttpContext.Session.Remove("OnetimeOtp");
+                    // here there is a method to add verified email in the database (Pending)
+                    return View("EmailVerified");
+                }
+                TempData["wrongOtp"] = "Otp invalid ! please Enter a Valid OTP";
+                return View();
+            }
+            else
+            {
+                TempData["emptyField"] = "Please Enter OTP";
+                return View();
+            }
+
+        }
+
+        public IActionResult EmailVerified()
+        {
+
             return View();
         }
 
@@ -90,6 +145,10 @@ namespace Authorization_Authentication.Controllers
                 bool onLockout = false;
                 int totalFailedCount = 3;
                 int remainingAttempt = 3;
+                string id = string.Empty;
+                id = _userManager.getIdByName(User.Username);
+            if (id != null)
+            {
 
                 //retriving last login attempt time and adding time (after which we nee to reset failattempt) to it and then comparing it with current time , accordingly reseting the time.
                 string serializedLastTime = HttpContext.Session.GetString("LastActivity");
@@ -103,11 +162,7 @@ namespace Authorization_Authentication.Controllers
                     {
                         _userManager.resetFailCount(User.Username);
                     }
-
-
                 }
-
-
                 //checking if the account is lock or not
                 bool isAccountLock = _userManager.getLockAccountdate(User.Username);
 
@@ -160,13 +215,15 @@ namespace Authorization_Authentication.Controllers
 
                         if (remainingAttempt <= 0)
                         {
+                            onLockout = true;
+                            ViewData["onLockout"] = onLockout;
                             bool setlock = _userManager.setLockAccountdate(User.Username);
                             //if no attempt remaining then lock the account and set lockout to 1
 
                         }
                         else
                         {
-
+                            ViewBag.invaliduser = "invalid username or password";
                             ViewData["remainingAttempt"] = remainingAttempt;
                         }
                         return View();
@@ -178,6 +235,12 @@ namespace Authorization_Authentication.Controllers
                     ViewData["onLockout"] = onLockout;
                     return View();
                 }
+            }
+            else
+            {
+                ViewBag.invaliduser = "invalid username or password";
+                return View();
+            }
             
         }
 

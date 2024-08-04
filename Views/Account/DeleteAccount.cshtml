@@ -1,30 +1,34 @@
 ﻿@model Authorization_Authentication.Account.UserManager.UserModel
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+
 @{
     ViewData["Title"] = "Delete Account";
     string username = ViewData["Username"]?.ToString() ?? string.Empty;
-
 }
-<div class="container vh-100 d-flex justify-content-center align-items-center">
-    <div class="card bg-secondary text-light w-100" style="max-width: 400px;">
+
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg p-3 mb-5 bg-dark text-light rounded border border-white" style="width: 100%; max-width: 500px;">
         <div class="card-body">
-            <h5 class="card-title text-center">Delete Page</h5>
+            <h1 class="card-title text-center mb-4" style="font-size: 2rem;">Delete Account</h1>
+            <p class="text-center">You are about to permanently delete your account.</p>
             <form action="DeleteAccount" method="post">
                 <div class="form-group">
-                    <label for="username">Username: <strong>@username</strong></label>
-                </div>
-                <div class="form-group">
-                    <p>This will permanently delete your account.</p>
+                    <label class="control-label">Username: <strong>@username</strong></label>
                 </div>
                 <div class="form-group">
                     <label asp-for="Password" class="control-label"></label>
-                    <input asp-for="Password" class="form-control" />
+                    <input asp-for="Password" class="form-control" placeholder="Enter your password to confirm" />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
-                <button type="submit" class="btn btn-danger btn-block">Delete Account Permently</button>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-danger mt-3 px-5">Delete Account Permanently</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

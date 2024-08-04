@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Authorization_Authentication.Account.ClaimManager;
 using Authorization_Authentication.Account.RoleManager;
 using Authorization_Authentication.Account.UserManager;
+using Authorization_Authentication.Account.MailingServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,10 @@ builder.Services.AddSingleton<RoleModel>();
 builder.Services.AddSingleton<IRoleAction, RoleAction>();
 builder.Services.AddSingleton<UserModel>();
 builder.Services.AddSingleton<IUserAction, UserAction>();
+builder.Services.Configure<MailSetting>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddTransient<MailSetting>();
+builder.Services.AddTransient<MailData>();
+builder.Services.AddTransient<ISendEmail, SendEmail>();
 
 builder.Services.AddSingleton<IClaimAction, ClaimAction>();
 
@@ -58,7 +63,10 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+else
+{
+    app.UseStatusCodePagesWithRedirects("/Error/{0}");
+}
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

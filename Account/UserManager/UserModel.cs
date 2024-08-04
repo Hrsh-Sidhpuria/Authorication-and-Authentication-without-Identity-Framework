@@ -34,5 +34,8 @@ namespace Authorization_Authentication.Account.UserManager
 
         [Required(ErrorMessage = "Password is Invalid")]
         public string CurrentPassword { get; set; }
+
+        public string otp { get; set; }
+
     }
 }

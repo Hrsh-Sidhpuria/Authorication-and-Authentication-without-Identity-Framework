@@ -2,67 +2,61 @@
 
 @{
     ViewData["Title"] = "Register";
-    
 }
 
-<h1>Register</h1>
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg p-3 mb-5 bg-dark rounded border border-white" style="width: 100%; max-width: 500px;">
+        <div class="card-body">
+            <h1 class="card-title text-center mb-4" style="font-size: 2rem;">Register</h1>
+            <h4 class="text-center">Create your account</h4>
+            <hr />
+            <div style="display:none" id="availableMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>OOPS ! </strong>Username is not available, please choose another username.
+            </div>
+            <div style="display:none" id="usernameEnter" class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Please enter a Username.</strong>
+            </div>
+            <form asp-action="Register">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<h4>ApplicationUser</h4>
-<hr />
-<div style="display:none" id="availableMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>OOPS ! </strong>Username is not available , please choose another username
-</div>
-<div style="display:none" id="usernameEnter" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Please enter Username </strong>
-</div>
-<div class="row">
-    <div class="col-md-4">
-
-
-        
-        
-        
-        <form asp-action="Register">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Username" class="control-label"></label>
+                    <input asp-for="Username" class="form-control" id="Username" placeholder="Choose a username" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Password" class="control-label"></label>
+                    <input type="password" asp-for="Password" class="form-control" placeholder="Enter your password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="control-label"></label>
+                    <input type="password" asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Role" class="control-label"></label>
+                    <select asp-for="Role" class="form-select">
+                        <option disabled selected>Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="RegularUser">Regular User</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+                <div class="form-group text-center">
+                    <input type="submit" value="Create Account" class="btn btn-primary mt-3 px-5" />
+                </div>
+            </form>
+            <div class="text-center mt-3">
+                <a asp-action="Login">Already have an account? Login</a>
             </div>
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" id="Username" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input type="password" asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ConfirmPassword" class="control-label"></label>
-                <input type="password" asp-for="ConfirmPassword" class="form-control" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Role" class="control-label"></label>
-                <select  asp-for="Role" class="form-select" >
-                    <option disabled selected>Select Role</option>
-                    <option value="admin">Admin</option>
-                    <option value="RegularUser">Regular User</option>
-                </select>
-                <span asp-validation-for="Role" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Login">Login</a>
 </div>
 
 @section Scripts {
@@ -81,24 +75,21 @@
             var username = Username.value;
             if (username == "") {
                 userEnter.style.display = "block";
-            }
-            else {
+            } else {
                 userEnter.style.display = "none";
-                //console.log(username);
                 var url = '@Url.Action("IsUsernameAvailable", "Account")' + '?username=' + encodeURIComponent(username);
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(isAvailable => {
+                        if (!isAvailable) {
+                            message.style.display = "block";
+                        } else {
+                            message.style.display = "none";
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
             }
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(isAvailable => {
-                    if (!isAvailable) {
-                        message.style.display = "block";
-                    } else {
-                        message.style.display = "none";
-                    }
-                })
-                .catch(error => console.error('Error:', error));
         });
     });
-    
 </script>
