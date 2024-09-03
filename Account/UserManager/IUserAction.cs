@@ -8,6 +8,8 @@
         public string getEmail(string Username);
         public string getIdByName(string Username);
 
+        public string getNameById(string UserId);
+
         public bool LoginUser(string Username, string Password);
         public bool updateUser(string Id,string Username,string Email,string role);
 

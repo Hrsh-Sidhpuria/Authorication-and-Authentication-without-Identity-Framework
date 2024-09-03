@@ -1,0 +1,299 @@
+﻿@using Authorization_Authentication.Services.ServicesModel
+@model List<ChatViewModel>
+@{
+    bool AbleTOSendMsg = (bool)ViewData["AbleTOSendMsg"];
+    string TicketId = ViewData["ticketId"].ToString();
+}
+
+<div class="d-flex flex-column">
+    <!-- Admin profile area -->
+    <div id="adminProfile" class="bg-black border-bottom py-2 px-3 d-flex align-items-center justify-content-between fixed-top" style="z-index: 1000; width: 100%;">
+        <!-- Back Button -->
+
+        <a asp-action="Index" asp-controller="Ticket" ><button class="btn btn-outline-light" >
+            <i class="bi bi-arrow-left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5h-12l5.5 5.5a.5.5 0 0 1-.708.708l-6.5-6.5a.5.5 0 0 1 0-.708l6.5-6.5a.5.5 0 0 1 .708.708L2.5 7.5h12A.5.5 0 0 1 15 8z" />
+                </svg>
+            </i>
+            Back
+        </button>
+        </a>
+
+        <!-- Admin Profile  -->
+        <div class="d-flex align-items-center justify-content-center">
+            <i class="bi bi-person-circle color-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+                </svg>
+            </i>
+            <h5 class="fw-bold p-2  text-white">Admin</h5>
+        </div>
+
+
+        
+    </div>
+
+
+
+
+    <!-- Chat messages area -->
+    <div class="flex-grow-1 d-flex flex-column-reverse p-3 bg-light overflow-auto " id="chatMessages" style="margin-top: 0px;">
+        @foreach (var message in Model)
+        {
+            <div class="d-flex mb-2 @(message.Sender == "RegularUser" ? "justify-content-end" : "justify-content-start")">
+                <div class="d-flex flex-column">
+                    @if (message.IsImage)
+                    {
+                        <img src="@message.ImageUrl"
+                             class="img-thumbnail"
+                             style="cursor: pointer; width: 200px;  border-radius: 15px;"
+                             onclick="openImageInFullScreen('@message.ImageUrl')" />
+                    }
+                    else
+                    {
+                        <div class="p-2 rounded text-white @(message.Sender == "RegularUser" ? "bg-secondary" : "bg-success")">
+                            @message.Message
+                        </div>
+                    }
+                    <div class="text-muted small text-end">
+                        @message.Date.ToString("g")
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div id="newChatMessage"></div>
+
+    @if (AbleTOSendMsg)
+    {
+        @* popup box to upload image *@
+        <div class="modal fade" id="uploadImageSection" tabindex="-1" aria-labelledby="uploadImageSectionLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadImageSectionLabel">Upload Image</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" title="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" asp-action="Reply" asp-route-ticketId="@Model.FirstOrDefault()?.TicketId" class="d-flex" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="formFile" class="form-label">Choose an image</label>
+                                <input class="form-control" type="file" id="formFile" name="Image">
+                            </div>
+                        
+                    
+                    <div class="modal-footer d-flex justify-content-center px-5">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="Close">Close</button>
+                                <button type="submit" class="btn btn-primary" title="upload">Upload</button>
+                    </div>
+                        </form>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+            <div class="bg-white border-top py-2 px-3 fixed-bottom ">
+
+
+
+
+            @* image upload button *@
+            <button class=" position-absolute imageSection btn btn-secondary   w-25  h3 mb-2  w-auto" title="Upload an Image">
+                <i class="bi bi-file-image d-flex justify-content-center  ">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-upload " viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                        <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
+                    </svg>
+                </i>
+            </button>
+                
+                <div class="d-flex" >
+                    
+                    
+
+                    <textarea class="form-control  ms-5 me-2 rounded-3" id="inputArea" name="message" placeholder="Type your message..." rows="1"></textarea>
+                    <button class="btn btn-primary rounded-circle"  title="Send" onclick="sendMessage()" >
+                        <i class="fas fa-paper-plane">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
+                                <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z" />
+                            </svg>
+                        </i>
+                    </button>
+                </div>
+                </div>
+                
+            
+        
+    }
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.2/signalr.min.js"></script>
+<script type="text/javascript">
+    
+    // Initialize SignalR connection
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/clientsidenotification")
+        .build();
+
+    // Get reference to chat messages container
+    var chatMessagesContainer = document.getElementById("newChatMessage");
+
+    // Function to handle image display in full screen
+    function openImageInFullScreen(imageUrl) {
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+        img.style.position = 'fixed';
+        img.style.top = '0';
+        img.style.left = '0';
+        img.style.zIndex = '1000';
+        img.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        img.onclick = () => document.body.removeChild(img);
+
+        document.body.appendChild(img);
+    }
+
+    // Listen for messages from admin
+    connection.on("ReceiveMessageFromAdmin", function (sender, message) {
+        console.log("Message received:", message, " by ", sender);
+        AppendChat(sender,message)
+        
+    });
+
+    //function to append  new chat to chatbox
+    function AppendChat(sender, message) 
+    { 
+        const messageContainer = document.createElement("div");
+        const currentDate = new Date().toLocaleString();
+
+
+        messageContainer.className = `d-flex mb-2 ${sender === "RegularUser" ? "justify-content-end" : "justify-content-start"}`;
+
+
+        messageContent = `
+                        <div class="d-flex flex-column">
+                            <div class="p-2 rounded text-white ${sender === "RegularUser" ? "bg-secondary" : "bg-success"}">
+                                ${message}
+                            </div>
+                            <div class="text-muted small text-end">
+                                ${currentDate}
+                            </div>
+                        </div>
+                   `;
+
+
+        messageContainer.innerHTML = messageContent;
+        if (chatMessagesContainer) {
+            chatMessagesContainer.appendChild(messageContainer);
+            window.scrollTo(0, document.body.scrollHeight);
+           
+        }
+    }
+
+    // Start SignalR connection
+    connection.start().catch(function (err) {
+        return console.error(err.toString());
+    });
+</script>
+
+
+<script>
+
+    //scroll to the bottom of th page inorder to see latest chat
+    window.onload = function () {
+        // Ensure the scroll position is immediately at the bottom
+        document.documentElement.scrollTop = document.documentElement.scrollHeight;
+        document.body.scrollTop = document.body.scrollHeight;
+    };
+   
+
+    //js for image popup
+    document.querySelector('.imageSection').addEventListener('click', function () {
+        var myModal = new bootstrap.Modal(document.getElementById('uploadImageSection'));
+        myModal.show();
+    });
+
+    function updateStatus(newStatus) {
+        var ticketId = '@ViewData["TicketId"]'; 
+
+        const params = new URLSearchParams();
+        params.append('status', newStatus);
+        params.append('ticketId', ticketId);
+
+        fetch('@Url.Action("UpdateStatus", "AdminTicket")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (newStatus == "Closed" || newStatus == "Resolved") {
+                        var chatMessages = document.getElementById('chatMessages');
+                        if (chatMessages) {
+                            chatMessages.style.display = 'none';
+                        }
+                    }
+                    alert("Status updated to " + newStatus);
+                } else {
+
+                    alert("An error occurred while updating the status: " + data.message);
+                }
+            })
+            .catch(error => {
+                // Handle network or other errors
+                alert("An error occurred: " + error.message);
+            });
+    }
+
+    function openImageInFullScreen(imageUrl) {
+        const imgWindow = window.open("", "_blank");
+        imgWindow.document.write('<img src="' + imageUrl + '" style="width:500px ">');
+    }
+
+    //send message 
+    function sendMessage() {
+        let msg = document.querySelector("#inputArea").value
+        let message = encodeURIComponent(msg);
+        let sender = encodeURIComponent("RegularUser");
+        let ticketId = "@TicketId";
+        ticketId = encodeURIComponent(ticketId);
+
+        
+        let queryString = `message=${message}&sender=${sender}&ticketId=${ticketId}`;
+
+       
+        fetch(`/Ticket/SendMessage?${queryString}`, {
+            method: 'GET'
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json(); 
+                } else {
+                    throw new Error('Failed to send message');
+                }
+            })
+            .then(data => {
+                console.log('Message sent successfully:', data);
+                AppendChat(sender, msg);
+                document.querySelector("#inputArea").value = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+               
+            });
+    }
+
+
+
+</script>
+</script>

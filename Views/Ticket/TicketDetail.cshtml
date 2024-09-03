@@ -1,0 +1,27 @@
+﻿
+@{
+    
+}
+@using Authorization_Authentication.Services.ServicesModel
+@model Tickets
+
+
+<h2>Ticket Details</h2>
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Model.Title</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Ticket ID:</strong> @Model.TicketId</p>
+        <p><strong>Detail:</strong> @Model.Detail</p>
+        <p><strong>Priority:</strong> @Model.Priority</p>
+        <p><strong>Status:</strong> @Model.Status</p>
+        
+            <p><strong>Reply:</strong> @Model.Reply</p>
+        
+    </div>
+    <div class="card-footer">
+        <a href="@Url.Action("Index", "Tickets")" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

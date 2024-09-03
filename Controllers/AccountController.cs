@@ -7,6 +7,7 @@ using Authorization_Authentication.Account.UserManager;
 using Authorization_Authentication.Account.ClaimManager;
 using Newtonsoft.Json;
 using Authorization_Authentication.Account.MailingServices;
+using System.Data;
 
 namespace Authorization_Authentication.Controllers
 {
@@ -57,7 +58,6 @@ namespace Authorization_Authentication.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(UserModel Users, RoleModel Roles)
         {
-
             bool isregister = await _userManager.createUser(Users.Username, Users.Password, Roles.Role, Users.Email);
             if (isregister)
             {
@@ -173,7 +173,7 @@ namespace Authorization_Authentication.Controllers
                     User.isloggin = toAllowLogin;
                     string role = _role.GetRole(User.Username);
                     string roleId = _role.GetRoleId(role);
-                    List<Claim> roleClaims = _claimAction.GetRoleClaims(roleId) ?? new List<Claim>();
+                    string UserId = _userManager.getIdByName(User.Username);
 
                     //checking that if the user is authorized or not
                     if (toAllowLogin)
@@ -181,19 +181,15 @@ namespace Authorization_Authentication.Controllers
 
                         _userName = User.Username;
                         string roleName = _role.GetRole(User.Username);
-                        List<Claim> claims = new List<Claim>();
-                        claims.Add(new Claim(ClaimTypes.NameIdentifier, User.Username));
-                        claims.Add(new Claim(ClaimTypes.Name, User.Username));
-                        claims.Add(new Claim(ClaimTypes.Role, roleName));
-                        claims.AddRange(roleClaims);
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                        ClaimsPrincipal claimsPrincipal =await _claimAction.setClaim(User.Username, role);
+                        
                         await HttpContext.SignInAsync(claimsPrincipal);
                         bool reset = _userManager.resetFailCount(User.Username);
 
 
                         HttpContext.Session.SetString("Username", User.Username);
                         HttpContext.Session.SetString("Role", roleName);
+                        HttpContext.Session.SetString("UserId", UserId);
 
                         if (ReturnUrl == null)
                         {
@@ -261,6 +257,8 @@ namespace Authorization_Authentication.Controllers
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
             string email = _userManager.getEmail(username);
+            string userId = _userManager.getIdByName(username);
+            ViewData["userId"] = userId;
             ViewData["Username"] = username;
             ViewData["Role"] = role;
             ViewData["Email"] = email;
@@ -282,13 +280,15 @@ namespace Authorization_Authentication.Controllers
         }
 
         [HttpPost]
-        public ActionResult EditData(UserModel user)
+        public async Task<ActionResult> EditData(UserModel user)
         {
             var username = HttpContext.Session.GetString("Username");
             string Id = _userManager.getIdByName(username);
             bool isupdated = _userManager.updateUser(Id, user.Username, user.Email, user.Role);
             if (isupdated == true)
             {
+                ClaimsPrincipal claimsPrincipal = await _claimAction.setClaim(user.Username, user.Role);
+                await HttpContext.SignInAsync(claimsPrincipal);
                 HttpContext.Session.SetString("Username", user.Username);
                 HttpContext.Session.SetString("Role", user.Role);
                 HttpContext.Session.SetString("Email", user.Email);

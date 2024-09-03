@@ -20,3 +20,44 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Profile Section */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Chat Messages */
+.bg-success {
+    background-color: #28a745 !important; /* Admin message background */
+}
+
+.bg-secondary {
+    background-color: #6c757d !important; /* User message background */
+}
+
+/* Align messages */
+.justify-content-start {
+    justify-content: flex-start;
+}
+
+.justify-content-end {
+    justify-content: flex-end;
+}
+
+
+.bi-chat-right-text-fill {
+   
+    transition: color 0.3s ease; 
+}
+
+
+.bi-chat-right-text-fill:hover {
+    color:darkcyan ; 
+    
+}
+
+</style >

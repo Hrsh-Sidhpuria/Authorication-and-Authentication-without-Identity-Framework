@@ -3,6 +3,10 @@ using Authorization_Authentication.Account.ClaimManager;
 using Authorization_Authentication.Account.RoleManager;
 using Authorization_Authentication.Account.UserManager;
 using Authorization_Authentication.Account.MailingServices;
+using Authorization_Authentication.Products;
+using Authorization_Authentication.Services.ServicesModel;
+using Authorization_Authentication.Services;
+using Authorization_Authentication.Services.BidirectionalChat;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,13 +52,19 @@ builder.Services.Configure<MailSetting>(builder.Configuration.GetSection("MailSe
 builder.Services.AddTransient<MailSetting>();
 builder.Services.AddTransient<MailData>();
 builder.Services.AddTransient<ISendEmail, SendEmail>();
-
+builder.Services.AddScoped<Product>();
+builder.Services.AddScoped<IProductServices, ProductServices>();
+builder.Services.AddSingleton<UserModel>();
 builder.Services.AddSingleton<IClaimAction, ClaimAction>();
+builder.Services.AddScoped<Tickets>();
+builder.Services.AddScoped<ITicketManagementServices, TicketManagementServices>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -80,5 +90,8 @@ app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<ClientSideNotification>("/clientsidenotification");
+app.MapHub<AdminSideNotification>("/adminsidenotification");
 
 app.Run();

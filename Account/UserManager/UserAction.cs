@@ -74,7 +74,7 @@ namespace Authorization_Authentication.Account.UserManager
                 if (conn.State == System.Data.ConnectionState.Open)
                 {
 
-                    Console.WriteLine("connected");
+                    
 
                     string userInsertQuery = "insert into AspNetUsers(Id,UserName,NormalizedUserName,Email,EmailConfirmed,PasswordHash,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnabled,AccessFailedCount) values(@Id,@Username,@NormalizedUserName,@Email,@EmailConfirmed,@PasswordHash,@PhoneNumberConfirmed,@TwoFactorEnabled,@LockoutEnabled,@AccessFailedCount)";
 
@@ -119,7 +119,6 @@ namespace Authorization_Authentication.Account.UserManager
         {
 
             string passwordHash = HashPassword(Password);
-            Console.WriteLine(passwordHash);
             SqlConnection conn = new SqlConnection(_connectionString);
             try
             {
@@ -649,7 +648,7 @@ namespace Authorization_Authentication.Account.UserManager
                 if (conn.State == System.Data.ConnectionState.Open)
                 {
 
-                    Console.WriteLine("connected");
+                    
 
 
                     string FetchUserId = "Select * from AspNetUsers where Username = @Username";
@@ -754,6 +753,43 @@ namespace Authorization_Authentication.Account.UserManager
                 var hashBytes = sha256.ComputeHash(bytes);
                 return Convert.ToBase64String(hashBytes);
             }
+        }
+
+        public string getNameById(string UserId)
+        {
+             string name = null;
+            SqlConnection conn = new SqlConnection(_connectionString);
+            try
+            {
+                conn.Open();
+                if (conn.State == System.Data.ConnectionState.Open)
+                {
+                    string fetchName = "select * from AspNetUsers where Id = @UserId";
+                    SqlCommand cmd = new SqlCommand(fetchName, conn);
+                    cmd.Parameters.AddWithValue("UserId", UserId);
+                    SqlDataReader rd = cmd.ExecuteReader();
+
+                    if (rd != null)
+                    {
+                        if (rd.Read())
+                        {
+
+                            name = rd["UserName"].ToString();
+                        }
+
+                    }
+
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine("SQL Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return name;
         }
     }
     

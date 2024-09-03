@@ -1,0 +1,48 @@
+﻿@model Authorization_Authentication.Services.ServicesModel.ViewModelToCreateTicket
+
+@{
+    ViewData["Title"] = "Create Ticket";
+}
+
+<h2>Issue Your Complaint</h2>
+
+<form asp-controller="Ticket" asp-action="IssueTicket">
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Detail" class="control-label"></label>
+        <textarea asp-for="Detail" class="form-control"></textarea>
+        <span asp-validation-for="Detail" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Priority" class="control-label"></label>
+        <select asp-for="Priority" class="form-control">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+        </select>
+        <span asp-validation-for="Priority" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ModuleId" class="control-label">Module</label>
+        <select asp-for="ModuleId" class="form-control" asp-items="Model.Modules"></select>
+        <span asp-validation-for="ModuleId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">Submit</button>
+    
+</form>
+<a asp-action="Index" asp-controller="Ticket" class="btn btn-dark my-2 p-2" >Back to Chat</a>
+  
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

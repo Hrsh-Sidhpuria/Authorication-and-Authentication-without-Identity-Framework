@@ -1,25 +1,84 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Home Page";
 }
 
+<!-- Main Content -->
 <div class="container mt-5">
-    <h1 class="align-baseline">Authentication and authorization without using Identity or Entity Framework.</h1>
-
-    <div class="card bg-grey mt-4">
-        <div class="card-body bg-grey">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    
-                    <a asp-action="UserData" class="btn btn-primary btn-block">UserData</a>
-                    
-                </div>
-                <div class="col-md-6 mb-3">
-
-                    <a  asp-action="UserCart" class="btn btn-primary btn-block">UserCart</a>
-                </div>
-            </div>
-        </div>
+    <div class="text-center mb-5">
+        <h1 class="display-4 font-weight-bold text-primary">AuthGuard Core</h1>
+        <p class="lead text-muted">Custom Authentication and Authorization Without Frameworks</p>
+        <hr class="w-50 mx-auto">
+        <p class="text-muted">Secure, fast, and reliable access control for your applications.</p>
     </div>
 </div>
+
+    @if (User.IsInRole("RegularUser"))
+    {
+        <div class="row text-center">
+            <!-- Card 1: UserData -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="icon-container mb-3 text-success">
+                            <i class="fas fa-box-open fa-3x"></i>
+                        </div> 
+                        <h5 class="card-title font-weight-bold text-black">Manage User Data</h5>
+                        <p class="card-text text-muted">Access and manage user information securely.</p>
+                        <a asp-action="UserData" class="btn btn-outline-primary btn-block">Go to User Data</a>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Card 2: Products -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="icon-container mb-3 text-success">
+                            <i class="fas fa-box-open fa-3x"></i>
+                        </div>
+                        <h5 class="card-title font-weight-bold text-black">View Products</h5>
+                        <p class="card-text text-muted">Browse and manage your product listings.</p>
+                        <a asp-action="Index" asp-controller="ProductsItem" class="btn btn-outline-success btn-block">Go to Products</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: UserCart -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="icon-container mb-3 text-danger">
+                            <i class="fas fa-shopping-cart fa-3x"></i>
+                        </div>
+                        <h5 class="card-title font-weight-bold text-black">View User Cart</h5>
+                        <p class="card-text text-muted">Check and manage items in the user cart.</p>
+                        <a asp-action="UserCart" class="btn btn-outline-danger btn-block">Go to User Cart</a>
+                    </div>
+                </div>
+            </div>
+    </div>
+     
+
+
+    }
+    else if (User.IsInRole("admin"))
+    {
+        <div class="row text-center">
+            <div class="col-md-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="icon-container mb-3 text-danger">
+                                <i class="fas fa-shopping-cart fa-3x"></i>
+                            </div>
+                            <h5 class="card-title font-weight-bold text-black">Manage User Complain</h5>
+                            <p class="card-text text-muted">Check and manage customer complains.</p>
+                            <a asp-action="UserCart" class="btn btn-outline-danger btn-block">List Of Complains</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    } 
+<!-- Include FontAwesome for Icons (optional) -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 

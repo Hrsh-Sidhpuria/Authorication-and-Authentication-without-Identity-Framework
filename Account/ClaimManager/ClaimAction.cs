@@ -2,21 +2,22 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Authorization_Authentication.Account.RoleManager;
-using Authorization_Authentication.Account.UserManager;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
+using System.Data;
 
 namespace Authorization_Authentication.Account.ClaimManager
 {
     public class ClaimAction : IClaimAction
     {
         private readonly string _connectionString;
+        private readonly IRoleAction _role;
 
-
-        public ClaimAction(IConfiguration configuration)
+        public ClaimAction(IConfiguration configuration,IRoleAction role)
         {
             _connectionString = configuration.GetConnectionString("dbcs");
-
-
+            this._role = role;
         }
         public bool addUserClaim(string UserId,string Email)
         {
@@ -175,8 +176,20 @@ namespace Authorization_Authentication.Account.ClaimManager
             return claims;
         }
 
-
-
+        public async Task<ClaimsPrincipal> setClaim(string Username, string Role)
+        {
+            string roleId = _role.GetRoleId(Role);
+            List<Claim> roleClaims = GetRoleClaims(roleId) ?? new List<Claim>();
+            string roleName = _role.GetRole(Username);
+            List<Claim> claims = new List<Claim>();
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, Username));
+            claims.Add(new Claim(ClaimTypes.Name, Username));
+            claims.Add(new Claim(ClaimTypes.Role, Role));
+            claims.AddRange(roleClaims);
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+            return claimsPrincipal;
+        }
     }
 
 }

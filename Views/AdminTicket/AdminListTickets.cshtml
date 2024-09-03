@@ -1,0 +1,71 @@
+﻿@using Authorization_Authentication.Services.ServicesModel
+@model TicketsViewModelAdmin
+
+<h2 class="text-center">List of Complains</h2>
+
+<form method="get" asp-controller="AdminTicket" asp-action="AdminListTickets" class="mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="status" class="form-label">Status</label>
+            <select id="status" name="status" asp-for="SelectedStatus" asp-items="Model.Statuses" class="form-control">
+                <option value="">All</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="module" class="form-label">Module</label>
+            <select id="module" name="moduleId" asp-for="SelectedModuleId" asp-items="Model.Modules" class="form-control">
+                <option value="">All</option>
+            </select>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-50">Filter</button>
+        </div>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>UserName</th>
+            <th></th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Tickets != null && Model.Tickets.Any())
+        {
+            @foreach (var ticket in Model.Tickets)
+            {
+                <tr>
+                    <td class="text-center text-black">@ticket.Title</td>
+                    <td class="text-center text-black">@ticket.Priority</td>
+                    <td class="text-center text-black">@ticket.Status</td>
+                    <td class="text-center text-black">@ticket.UserName</td>
+
+
+                    <td>
+                        <a href="@Url.Action("AdminChat", "AdminTicket", new { ticketId = ticket.TicketId })">
+                            <i class="bi bi-chat-right-text-fill" title="Chat">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-chat-right-text-fill" viewBox="0 0 16 16">
+                                    <path d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353zM3.5 3h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1m0 2.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1m0 2.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1" />
+                                </svg>
+                            </i>
+                        </a>
+
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-white">No Complains found</td>
+            </tr>
+        }
+    </tbody>
+</table>
