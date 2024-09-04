@@ -2,6 +2,7 @@
 
 namespace Authorization_Authentication.Services.BidirectionalChat
 {
+    /*admin side notification*/
     public class AdminSideNotification :Hub
     {
             public async Task SendMessage(string sender, string message)
